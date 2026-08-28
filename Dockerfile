@@ -61,6 +61,8 @@ RUN php artisan key:generate --force
 
 RUN php artisan migrate --force
 
+RUN php artisan db:seed --class=ProductSeeder --force
+
 RUN php artisan storage:link || true
 
 RUN chown -R www-data:www-data storage bootstrap/cache database
