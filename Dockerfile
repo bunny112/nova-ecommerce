@@ -47,6 +47,12 @@ RUN chmod -R 775 storage bootstrap/cache database
 
 RUN cp .env.example .env || true
 
+RUN sed -i 's|^APP_ENV=.*|APP_ENV=production|' .env
+
+RUN sed -i 's|^APP_DEBUG=.*|APP_DEBUG=false|' .env
+
+RUN sed -i 's|^APP_URL=.*|APP_URL=https://nova-ecommerce-1-58o7.onrender.com|' .env
+
 RUN sed -i 's|^DB_CONNECTION=.*|DB_CONNECTION=sqlite|' .env
 
 RUN sed -i 's|^DB_DATABASE=.*|DB_DATABASE=/var/www/html/database/database.sqlite|' .env
