@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo_mysql mbstring zip \
+    && docker-php-ext-install intl pdo_mysql pdo_sqlite mbstring zip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,23 +33,32 @@ RUN npm ci
 RUN npm run build
 
 RUN mkdir -p \
+    database \
     storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
     bootstrap/cache
 
-RUN chmod -R 775 storage bootstrap/cache
+RUN touch database/database.sqlite
+
+RUN chmod -R 775 storage bootstrap/cache database
 
 RUN cp .env.example .env || true
 
+RUN sed -i 's|^DB_CONNECTION=.*|DB_CONNECTION=sqlite|' .env
+RUN sed -i 's|^DB_DATABASE=.*|DB_DATABASE=/var/www/html/database/database.sqlite|' .env
+
 RUN php artisan key:generate --force
+
+RUN php artisan migrate --force
+
+RUN php artisan db:seed --force
 
 RUN php artisan storage:link || true
 
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache database
 
-# Laravel Apache VirtualHost
 RUN printf '%s\n' \
     '<VirtualHost *:80>' \
     '    DocumentRoot /var/www/html/public' \
