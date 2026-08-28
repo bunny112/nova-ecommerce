@@ -48,13 +48,12 @@ RUN chmod -R 775 storage bootstrap/cache database
 RUN cp .env.example .env || true
 
 RUN sed -i 's|^DB_CONNECTION=.*|DB_CONNECTION=sqlite|' .env
+
 RUN sed -i 's|^DB_DATABASE=.*|DB_DATABASE=/var/www/html/database/database.sqlite|' .env
 
 RUN php artisan key:generate --force
 
 RUN php artisan migrate --force
-
-RUN php artisan db:seed --force
 
 RUN php artisan storage:link || true
 
